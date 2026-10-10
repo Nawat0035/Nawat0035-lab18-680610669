@@ -5,9 +5,11 @@ import { z } from "zod";
 export const zCourseId = z
   .string()
   .length(6, { message: "Course ID must be 6 digits." });
+
 const zCourseTitle = z
   .string()
   .min(6, { message: "Course title must be at least 6 charaters." });
+
 const zInstructors = z.array(z.string()).min(1);
 
 export const zCoursePostBody = z.object({
@@ -22,7 +24,7 @@ export const zCoursePutBody = z.object({
   instructors: zInstructors.nullish(),
 });
 
-//////  Student Validators //////
+////// Student Validators //////
 
 const MAX_INTERESTS = 3;
 const MAX_EMAILS = 3;
@@ -30,24 +32,33 @@ const MAX_EMAILS = 3;
 export const zStudentId = z
   .string()
   .trim()
-  .regex(/^\d{9}$/, { message: "รหัสนักศึกษาต้องเป็นตัวเลข 9 หลัก" });
+  .regex(/^\d{9}$/, {
+    message: "รหัสนักศึกษาต้องเป็นตัวเลข 9 หลัก",
+  });
+
 const zFirstName = z
   .string()
   .trim()
   .min(3, { message: "ชื่อต้องมีอย่างน้อย 3 ตัวอักษร" });
+
 const zLastName = z
   .string()
   .trim()
   .min(3, { message: "นามสกุลต้องมีอย่างน้อย 3 ตัวอักษร" });
+
 const zProgram = z.enum(["CPE", "ISNE"], {
   message: "เลือกหลักสูตร",
 });
+
 const zCourses = z.array(zCourseId);
+
 const zInterests = z
   .array(z.string())
   .min(1, { message: "เลือกความสนใจอย่างน้อย 1 ด้าน" })
-  .max(MAX_INTERESTS, { message: `เลือกได้ไม่เกิน ${MAX_INTERESTS} ด้าน` });
-// Frontend ส่ง emails เป็น string[] (map จาก { address } แล้ว)
+  .max(MAX_INTERESTS, {
+    message: `เลือกได้ไม่เกิน ${MAX_INTERESTS} ด้าน`,
+  });
+
 const zEmails = z
   .array(
     z
@@ -56,9 +67,13 @@ const zEmails = z
       .pipe(z.email({ message: "อีเมลไม่ถูกต้อง" })),
   )
   .min(1, { message: "ต้องมีอีเมลอย่างน้อย 1 อีเมล" })
-  .max(MAX_EMAILS, { message: `มีอีเมลได้ไม่เกิน ${MAX_EMAILS} อีเมล` })
+  .max(MAX_EMAILS, {
+    message: `มีอีเมลได้ไม่เกิน ${MAX_EMAILS} อีเมล`,
+  })
   .refine(
-    (items) => new Set(items.map((e) => e.toLowerCase())).size === items.length,
+    (items) =>
+      new Set(items.map((email) => email.toLowerCase())).size ===
+      items.length,
     { message: "อีเมลซ้ำกัน" },
   );
 
@@ -74,9 +89,9 @@ export const zStudentPostBody = z.object({
 
 export const zStudentPutBody = z.object({
   studentId: zStudentId,
-  firstName: zFirstName.nullish(), //firstName can be null or undefined
-  lastName: zLastName.nullish(), //lastName can be null or undefined
-  program: zProgram.nullish(), //program can be null or undefined
+  firstName: zFirstName.nullish(),
+  lastName: zLastName.nullish(),
+  program: zProgram.nullish(),
   interests: zInterests.nullish(),
   emails: zEmails.nullish(),
 });
@@ -88,7 +103,14 @@ export const zEnrollmentBody = z.object({
   courseId: zCourseId,
 });
 
+export const zEnrollmentPutBody = z.object({
+  studentId: zStudentId,
+  courseId: zCourseId,
+  newCourseId: zCourseId,
+});
+
 ////// User Validators //////
+
 export const zUserBody = z.object({
   username: zFirstName,
   password: zFirstName,
